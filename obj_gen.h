@@ -123,6 +123,7 @@ public:
     unsigned long long normal_distribution(unsigned long long r_min, unsigned long long r_max, double r_stddev, double r_median);
 
     void set_random_data(bool random_data);
+    void set_compress_pct(unsigned short compress_pct);
     void set_data_size_fixed(unsigned int size);
     void set_data_size_range(unsigned int size_min, unsigned int size_max);
     void set_data_size_list(config_weight_list* data_size_list);

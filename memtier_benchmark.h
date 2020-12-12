@@ -66,6 +66,7 @@ struct benchmark_config {
     unsigned int data_size;
     unsigned int data_offset;
     bool random_data;
+    unsigned short compress_pct;
     struct config_range data_size_range;
     config_weight_list data_size_list;
     const char *data_size_pattern;

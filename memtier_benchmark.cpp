@@ -107,6 +107,7 @@ static void config_print(FILE *file, struct benchmark_config *cfg)
         "data_size = %u\n"
         "data_offset = %u\n"
         "random_data = %s\n"
+        "compress_pct = %u\n"
         "data_size_range = %u-%u\n"
         "data_size_list = %s\n"
         "data_size_pattern = %s\n"
@@ -155,6 +156,7 @@ static void config_print(FILE *file, struct benchmark_config *cfg)
         cfg->data_size,
         cfg->data_offset,
         cfg->random_data ? "yes" : "no",
+        cfg->compress_pct,
         cfg->data_size_range.min, cfg->data_size_range.max,
         cfg->data_size_list.print(tmpbuf, sizeof(tmpbuf)-1),
         cfg->data_size_pattern,
@@ -211,6 +213,7 @@ static void config_print_to_json(json_handler * jsonhandler, struct benchmark_co
     jsonhandler->write_obj("data_size"         ,"%u",          	cfg->data_size);
     jsonhandler->write_obj("data_offset"       ,"%u",          	cfg->data_offset);
     jsonhandler->write_obj("random_data"       ,"\"%s\"",      	cfg->random_data ? "true" : "false");
+    jsonhandler->write_obj("compress_pct"      ,"\"%u\"",      	cfg->compress_pct);
     jsonhandler->write_obj("data_size_range"   ,"\"%u:%u\"",	cfg->data_size_range.min, cfg->data_size_range.max);
     jsonhandler->write_obj("data_size_list"    ,"\"%s\"",   	cfg->data_size_list.print(tmpbuf, sizeof(tmpbuf)-1));
     jsonhandler->write_obj("data_size_pattern" ,"\"%s\"", 		cfg->data_size_pattern);
@@ -355,6 +358,7 @@ static int config_parse_args(int argc, char *argv[], struct benchmark_config *cf
         o_data_size_list,
         o_data_size_pattern,
         o_data_offset,
+        o_compress_pct,
         o_expiry_range,
         o_data_import,
         o_data_verify,
@@ -425,6 +429,7 @@ static int config_parse_args(int argc, char *argv[], struct benchmark_config *cf
         { "data-size",                  1, 0, 'd' },
         { "data-offset",                1, 0, o_data_offset },
         { "random-data",                0, 0, 'R' },
+        { "compress-pct",               0, 0, o_compress_pct },
         { "data-size-range",            1, 0, o_data_size_range },
         { "data-size-list",             1, 0, o_data_size_list },
         { "data-size-pattern",          1, 0, o_data_size_pattern },
@@ -607,6 +612,14 @@ static int config_parse_args(int argc, char *argv[], struct benchmark_config *cf
                     break;
                 case 'R':
                     cfg->random_data = true;
+                    break;
+                case o_compress_pct:
+                    endptr = NULL;
+                    cfg->compress_pct = (unsigned short int) strtoul(optarg, &endptr, 10);
+                    if (!endptr || *endptr != '\0' || cfg->compress_pct > 100) {
+                        fprintf(stderr, "error: compress-pct must be between zero and 100.\n");
+                        return -1;
+                    }
                     break;
                 case o_data_offset:
                     endptr = NULL;
@@ -1370,6 +1383,11 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
+        if (cfg.compress_pct) {
+            fprintf(stderr, "error: compress-pct cannot be specified when importing.\n");
+            exit(1);
+        }
+
         if (!cfg.generate_keys &&
             (cfg.key_maximum || cfg.key_minimum || cfg.key_prefix)) {
                 fprintf(stderr, "error: use key-minimum, key-maximum and key-prefix only with generate-keys.\n");
@@ -1413,6 +1431,7 @@ int main(int argc, char *argv[])
     }
     if (!cfg.data_import) {
         obj_gen->set_random_data(cfg.random_data);
+        obj_gen->set_compress_pct(cfg.compress_pct);
     }
 
     if (cfg.select_db > 0 && strcmp(cfg.protocol, "redis")) {

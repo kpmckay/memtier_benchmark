@@ -229,7 +229,7 @@ void object_generator::alloc_value_buffer(void)
     if (size > 0) {
         m_value_buffer = (char*) malloc(size);
         assert(m_value_buffer != NULL);
-        if (!m_random_data) {
+        if (!m_random_data && !m_compress_pct) {
             memset(m_value_buffer, 'x', size);
         } else {
             if (m_random_fd == -1) {
@@ -244,6 +244,11 @@ void object_generator::alloc_value_buffer(void)
             char *d = m_value_buffer;
             int ret;
             int iter = 0;
+
+            if ( m_compress_pct ) {
+               memset(m_value_buffer, 'z', size);
+               size = (size * (100 - m_compress_pct)) / 100
+            }
 
             while (d - m_value_buffer < size) {
                 if (buf1_idx == sizeof(buf1)) {
@@ -293,6 +298,11 @@ void object_generator::alloc_value_buffer(const char* copy_from)
 void object_generator::set_random_data(bool random_data)
 {
     m_random_data = random_data;
+}
+
+void object_generator::set_compress_pct(unsigned short compress_pct)
+{
+    m_compress_pct = compress_pct;
 }
 
 void object_generator::set_data_size_fixed(unsigned int size)
