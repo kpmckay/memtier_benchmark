@@ -213,7 +213,7 @@ static void config_print_to_json(json_handler * jsonhandler, struct benchmark_co
     jsonhandler->write_obj("data_size"         ,"%u",          	cfg->data_size);
     jsonhandler->write_obj("data_offset"       ,"%u",          	cfg->data_offset);
     jsonhandler->write_obj("random_data"       ,"\"%s\"",      	cfg->random_data ? "true" : "false");
-    jsonhandler->write_obj("compress_pct"      ,"\"%u\"",      	cfg->compress_pct);
+    jsonhandler->write_obj("compress_pct"      ,"%u",      	cfg->compress_pct);
     jsonhandler->write_obj("data_size_range"   ,"\"%u:%u\"",	cfg->data_size_range.min, cfg->data_size_range.max);
     jsonhandler->write_obj("data_size_list"    ,"\"%s\"",   	cfg->data_size_list.print(tmpbuf, sizeof(tmpbuf)-1));
     jsonhandler->write_obj("data_size_pattern" ,"\"%s\"", 		cfg->data_size_pattern);
@@ -258,6 +258,8 @@ static void config_init_defaults(struct benchmark_config *cfg)
         cfg->ratio = config_ratio("1:10");
     if (!cfg->pipeline)
         cfg->pipeline = 1;
+    if (!cfg->compress_pct)
+	cfg->compress_pct = 0;
     if (!cfg->data_size && !cfg->data_size_list.is_defined() && !cfg->data_size_range.is_defined() && !cfg->data_import)
         cfg->data_size = 32;
     if (cfg->generate_keys || !cfg->data_import) {
@@ -429,7 +431,7 @@ static int config_parse_args(int argc, char *argv[], struct benchmark_config *cf
         { "data-size",                  1, 0, 'd' },
         { "data-offset",                1, 0, o_data_offset },
         { "random-data",                0, 0, 'R' },
-        { "compress-pct",               0, 0, o_compress_pct },
+        { "compress-pct",               1, 0, o_compress_pct },
         { "data-size-range",            1, 0, o_data_size_range },
         { "data-size-list",             1, 0, o_data_size_list },
         { "data-size-pattern",          1, 0, o_data_size_pattern },
