@@ -143,6 +143,7 @@ object_generator::object_generator(size_t n_key_iterators/*= OBJECT_GENERATOR_KE
     m_data_size_type(data_size_unknown),
     m_data_size_pattern(NULL),
     m_random_data(false),
+    m_compress_pct(0),
     m_expiry_min(0),
     m_expiry_max(0),
     m_key_prefix(NULL),
@@ -165,6 +166,7 @@ object_generator::object_generator(const object_generator& copy) :
     m_data_size(copy.m_data_size),
     m_data_size_pattern(copy.m_data_size_pattern),
     m_random_data(copy.m_random_data),
+    m_compress_pct(copy.m_compress_pct),
     m_expiry_min(copy.m_expiry_min),
     m_expiry_max(copy.m_expiry_max),
     m_key_prefix(copy.m_key_prefix),
@@ -247,7 +249,7 @@ void object_generator::alloc_value_buffer(void)
 
             if ( m_compress_pct ) {
                memset(m_value_buffer, 'z', size);
-               size = (size * (100 - m_compress_pct)) / 100
+               size = (size * (100 - m_compress_pct)) / 100;
             }
 
             while (d - m_value_buffer < size) {

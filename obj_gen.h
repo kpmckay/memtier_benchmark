@@ -91,6 +91,7 @@ protected:
     } m_data_size;
     const char *m_data_size_pattern;
     bool m_random_data;
+    unsigned short m_compress_pct;
     unsigned int m_expiry_min;
     unsigned int m_expiry_max;
     const char *m_key_prefix;
